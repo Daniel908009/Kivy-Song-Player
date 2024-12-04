@@ -2,6 +2,10 @@
     cols: 1
     playList: []
     now_playing: ''
+    music: None
+    current_song: 0
+    music_entire_time: 0
+    stopped_time: 0
     Label:
         text: 'Music Player'
         font_size: 30
@@ -39,8 +43,10 @@
             text: '>>'
             on_press: root.next()
         Button:
+            id: play_stop
+            background_color: (0, 1, 0, 1)
             text: 'Play'
-            on_press: root.play()
+            on_press: root.play_stop()
     GridLayout:
         cols: 1
         Label:
