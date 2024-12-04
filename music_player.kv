@@ -1,0 +1,111 @@
+<MainGrid>
+    cols: 1
+    playList: []
+    now_playing: ''
+    Label:
+        text: 'Music Player'
+        font_size: 30
+        size_hint: (1, 0.3)
+    GridLayout:
+        cols: 1
+        Label:
+            text: 'Now Playing'
+            font_size: 20
+        GridLayout:
+            cols: 2
+            Label:
+                id: now_playing
+                text: ''
+                font_size: 15
+            Label:
+                id: time_playing
+                text: ''
+    GridLayout:
+        cols: 6
+        size_hint: (1, 0.3)
+        Button:
+            text: 'Add Song'
+            on_press: root.add()
+        Button:
+            text: '<<'
+            on_press: root.previous()
+        Button:
+            text: '<'
+            on_press: root.rewind()
+        Button:
+            text: '>'
+            on_press: root.forward()
+        Button:
+            text: '>>'
+            on_press: root.next()
+        Button:
+            text: 'Play'
+            on_press: root.play()
+    GridLayout:
+        cols: 1
+        Label:
+            text: 'Playlist'
+            font_size: 20
+            size_hint: (1, 0.3)
+        GridLayout:
+            id: Scroll_text_label
+            cols: 1
+            size_hint_y: None
+            size_hint: (1, 0.3)
+            Label:
+                text: 'No songs in playlist'
+                font_size: 15
+        ScrollView:
+            GridLayout:
+                id: playlist
+                cols: 1
+                size_hint_y: None
+                height: 0
+
+<AddPopup>
+    title: 'Add Song'
+    size_hint: 0.75, 0.75
+    auto_dismiss: False
+    caller: None
+    BoxLayout:
+        orientation: 'vertical'
+        padding: (10, 10, 10, 0)
+        FileChooserListView:
+            id: filechooser
+            dirselect: True
+            filters: ("*.mp3", "*.wav")
+        GridLayout:
+            cols: 2
+            size_hint: (1, 0.3)
+            padding: 10
+            Button:
+                text: 'Cancel'
+                on_press: root.dismiss()
+            Button:
+                text: 'Add'
+                on_press: root.add_song()
+
+<Song_Widget>
+    size_hint_y: None
+    height: 50
+    cols: 3
+    song_name: ''
+    song_time: ''
+    song_path: ''
+    caller: None
+    Label:
+        id: song_name
+        text: ''
+        font_size: 20
+    Label:
+        id: song_time
+        text: ''
+        font_size: 20
+    GridLayout:
+        cols: 2
+        Button:
+            text: 'Play'
+            on_press: root.play()
+        Button:
+            text: 'Remove'
+            on_press: root.remove()
