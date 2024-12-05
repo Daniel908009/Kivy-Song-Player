@@ -15,7 +15,7 @@
 [] better UI (more colours and a song progress bar)<br>
 [] cleaner code (there is currently a lot of code that repeats everywhere, so I will need to add functions to clear it out)<br>
 [] more functionalities (repeat list in a loop and similar features)<br>
-
+[] fixing all possible errors (currently you can rewind, even though there are no songs, will fix soon)<br>
 <h1>Download instructions</h1>
 *Note the links are instructional images <br>
 **Note the images used bellow are from a different Github repository, however the overall procces is allways the same. <br>
