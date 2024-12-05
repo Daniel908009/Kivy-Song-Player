@@ -9,12 +9,12 @@
 ![image](https://github.com/user-attachments/assets/10f9224e-912b-4ec4-93cf-9604c0a472ed)
 
 ## To do
-[X] file and directory loading
-[X] menu with rewind, forward, next, previous, and stop buttons
-[X] scroll menu with all the songs listed
-[] better UI (more colours and a song progress bar)
-[] cleaner code (there is currently a lot of code that repeats everywhere, so I will need to add functions to clear it out)
-[] more functionalities (repeat list in a loop and similar features)
+[X] file and directory loading <br>
+[X] menu with rewind, forward, next, previous, and stop buttons<br>
+[X] scroll menu with all the songs listed<br>
+[] better UI (more colours and a song progress bar)<br>
+[] cleaner code (there is currently a lot of code that repeats everywhere, so I will need to add functions to clear it out)<br>
+[] more functionalities (repeat list in a loop and similar features)<br>
 
 <h1>Download instructions</h1>
 *Note the links are instructional images <br>
