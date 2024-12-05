@@ -35,8 +35,17 @@ class Song_Widget(GridLayout):
         self.caller = caller
     
     def remove(self):
-        self.caller.playList.remove(self.song_path)
         self.parent.remove_widget(self)
+        self.caller.ids.playlist.height -= 50
+        if self.caller.playList == [] or self.caller.playList[self.caller.current_song] == self.song_path:
+            Clock.unschedule(self.caller.update_time)
+            self.caller.stopped_time = 0
+            pygame.mixer.music.stop()
+            self.caller.ids.play_stop.text = "Play"
+            self.caller.ids.play_stop.background_color = [0,1,0,1]
+            self.caller.ids.now_playing.text = "Select a song to play"
+            self.caller.ids.time_playing.text = ""
+        self.caller.playList.remove(self.song_path)
 
     def play(self):
         self.caller.play(self.song_path)
@@ -68,8 +77,8 @@ class AddPopup(Popup):
             if i == 1:
                 self.caller.ids.Scroll_text_label.clear_widgets()
                 self.caller.ids.Scroll_text_label.cols = 3
-                self.caller.ids.Scroll_text_label.add_widget(Label(text="Song Name", color=[0,0,1,1])) # all of these will maybe be done through a specific class later on
-                self.caller.ids.Scroll_text_label.add_widget(Label(text="Duration", color=[0,0,1,1])) # the colour theme could later be rechangeable
+                self.caller.ids.Scroll_text_label.add_widget(Label(text="Song Name", color=[0,0,1,1]))
+                self.caller.ids.Scroll_text_label.add_widget(Label(text="Duration", color=[0,0,1,1]))
                 self.caller.ids.Scroll_text_label.add_widget(Label(text="Controls", color=[0,0,1,1]))
         self.dismiss()
 
@@ -82,41 +91,109 @@ class MainGrid(GridLayout):
 
     def play_stop(self):
         if self.playList != []:
-            if self.ids.play_stop.text == "Play":
+            if self.ids.play_stop.text == "Play" or self.ids.play_stop.text == "Resume":
                 self.ids.play_stop.text = "Stop"
                 self.ids.play_stop.background_color = [1,0,0,1]
-                if self.stopped_time != 0:
-                    #print(self.stopped_time)
-                    #print((self.stopped_time/(self.music_entire_time/100)/100))
-                    #something = (self.stopped_time/(self.music_entire_time/100)/100)
-                    pygame.mixer.music.unpause()
-                    self.stopped_time = 0
+                self.ids.now_playing.text = self.playList[self.current_song].split("/")[-1]
+                if self.playList[self.current_song].endswith(".mp3"):
+                    self.ids.time_playing.text = str(round(MP3(self.playList[self.current_song]).info.length, 2)) + "s"
                 else:
-                    self.music = pygame.mixer.music.load(self.playList[0])
-                    #self.music_entire_time = self.music.get_length()
+                    self.ids.time_playing.text = str(round(WAVE(self.playList[self.current_song]).info.length, 2)) + "s"
+                if self.stopped_time != 0:
+                    pygame.mixer.music.unpause()
+                else:
+                    pygame.mixer.music.load(self.playList[0])
                 if pygame.mixer.music.get_busy() == False:
                     pygame.mixer.music.play()
                 Clock.schedule_interval(self.update_time, 1)
             else:
-                self.ids.play_stop.text = "Play"
+                self.ids.play_stop.text = "Resume"
                 self.ids.play_stop.background_color = [0,1,0,1]
                 Clock.unschedule(self.update_time)
                 pygame.mixer.music.pause()
 
     def update_time(self, dt):
         self.stopped_time += dt
-        print(self.stopped_time , float(self.ids.playlist.children[0].song_time))
-        if self.stopped_time >= float(self.ids.playlist.children[0].song_time):
+        if self.stopped_time >= float(self.ids.time_playing.text[:-1]):
             print("changing song")
-            self.playList.pop(0)
+            self.current_song += 1
             self.stopped_time = 0
-            self.ids.playlist.remove_widget(self.ids.playlist.children[0])
             pygame.mixer.music.stop()
-            if self.playList != []:
-                self.music = pygame.mixer.music.load(self.playList[0])
+            if self.current_song < len(self.playList):
+                pygame.mixer.music.load(self.playList[self.current_song])
                 pygame.mixer.music.play()
+                self.ids.now_playing.text = self.playList[self.current_song].split("/")[-1]
+                if self.playList[self.current_song].endswith(".mp3"):
+                    self.ids.time_playing.text = str(round(MP3(self.playList[self.current_song]).info.length, 2)) + "s"
+                else:
+                    self.ids.time_playing.text = str(round(WAVE(self.playList[self.current_song]).info.length, 2)) + "s"
             else:
+                self.current_song = 0
+                self.stopped_time = 0
                 Clock.unschedule(self.update_time)
+                self.ids.play_stop.text = "Play"
+                self.ids.play_stop.background_color = [0,1,0,1]
+                self.ids.now_playing.text = "You have reached the end of the playlist"
+                self.ids.time_playing.text = "Select a song to play"
+
+    def play(self, path):
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load(path)
+        pygame.mixer.music.play()
+        self.stopped_time = 0
+        self.current_song = self.playList.index(path)
+        Clock.schedule_interval(self.update_time, 1)
+        self.ids.play_stop.text = "Stop"
+        self.ids.play_stop.background_color = [1,0,0,1]
+        self.ids.now_playing.text = path.split("/")[-1]
+        if path.endswith(".mp3"):
+            self.ids.time_playing.text = str(round(MP3(path).info.length, 2)) + "s"
+        else:
+            self.ids.time_playing.text = str(round(WAVE(path).info.length, 2)) + "s"
+
+    def previous(self):
+        if self.current_song == 0:
+            self.current_song = len(self.playList) - 1
+        else:
+            self.current_song -= 1
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load(self.playList[self.current_song])
+        pygame.mixer.music.play()
+        self.stopped_time = 0
+        Clock.schedule_interval(self.update_time, 1)
+        self.ids.play_stop.text = "Stop"
+        self.ids.play_stop.background_color = [1,0,0,1]
+        self.ids.now_playing.text = self.playList[self.current_song].split("/")[-1]
+        if self.playList[self.current_song].endswith(".mp3"):
+            self.ids.time_playing.text = str(round(MP3(self.playList[self.current_song]).info.length, 2)) + "s"
+        else:
+            self.ids.time_playing.text = str(round(WAVE(self.playList[self.current_song]).info.length, 2)) + "s"
+        
+    def next(self):
+        if self.current_song == len(self.playList) - 1:
+            self.current_song = 0
+        else:
+            self.current_song += 1
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load(self.playList[self.current_song])
+        pygame.mixer.music.play()
+        self.stopped_time = 0
+        Clock.schedule_interval(self.update_time, 1)
+        self.ids.play_stop.text = "Stop"
+        self.ids.play_stop.background_color = [1,0,0,1]
+        self.ids.now_playing.text = self.playList[self.current_song].split("/")[-1]
+        if self.playList[self.current_song].endswith(".mp3"):
+            self.ids.time_playing.text = str(round(MP3(self.playList[self.current_song]).info.length, 2)) + "s"
+        else:
+            self.ids.time_playing.text = str(round(WAVE(self.playList[self.current_song]).info.length, 2)) + "s"
+    
+    def rewind(self):
+        pygame.mixer.music.set_pos(self.stopped_time - 10)
+        self.stopped_time = 0
+    
+    def forward(self):
+        pygame.mixer.music.set_pos(self.stopped_time + 10)
+        self.stopped_time += 10
 
 class Music_playerApp(App):
     def build(self):
