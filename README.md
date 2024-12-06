@@ -5,17 +5,20 @@
 <p>App has a rewind, forward, next, previous buttons, and a scroll menu where the songs are listed.</p>
 
 ## Screenshots
-![image](https://github.com/user-attachments/assets/93f65929-50d5-474c-ac3d-d7356061a648)
-![image](https://github.com/user-attachments/assets/10f9224e-912b-4ec4-93cf-9604c0a472ed)
+![image](https://github.com/user-attachments/assets/5d69b50c-2d47-4498-8f41-62fad39a81de)
+
 
 ## To do
 [X] file and directory loading <br>
 [X] menu with rewind, forward, next, previous, and stop buttons<br>
 [X] scroll menu with all the songs listed<br>
-[] better UI (more colours and a song progress bar)<br>
+[X] song progress bar
+[] volume bar
+[] better UI (more colours)<br>
+[] changing how the program finds a song in the playList, because currently you can cause an error by deleting some songs and then pushing the play button directly from the list of songs.
 [] cleaner code (there is currently a lot of code that repeats everywhere, so I will need to add functions to clear it out)<br>
-[] more functionalities (repeat list in a loop and similar features)<br>
-[] fixing all possible errors (currently you can rewind, even though there are no songs, will fix soon)<br>
+[X] more functionalities (repeat list in a loop and similar features)<br>
+[X] fixing all possible errors (currently you can rewind, even though there are no songs, will fix soon)<br>
 <h1>Download instructions</h1>
 *Note the links are instructional images <br>
 **Note the images used bellow are from a different Github repository, however the overall procces is allways the same. <br>
