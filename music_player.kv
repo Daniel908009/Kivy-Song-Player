@@ -23,12 +23,14 @@
             Label:
                 id: time_playing
                 text: ''
+        Slider:
+            id: time_slider
+            min: 0
+            value: 0
+            disabled: True
     GridLayout:
         cols: 6
         size_hint: (1, 0.3)
-        Button:
-            text: 'Add Song'
-            on_press: root.add()
         Button:
             text: '<<'
             on_press: root.previous()
@@ -36,22 +38,44 @@
             text: '<'
             on_press: root.rewind()
         Button:
+            id: play_stop
+            background_color: (0, 1, 0, 1)
+            text: 'Play'
+            on_press: root.play_stop()
+        Button:
             text: '>'
             on_press: root.forward()
         Button:
             text: '>>'
             on_press: root.next()
-        Button:
-            id: play_stop
-            background_color: (0, 1, 0, 1)
-            text: 'Play'
-            on_press: root.play_stop()
     GridLayout:
         cols: 1
-        Label:
-            text: 'Playlist'
-            font_size: 20
+        GridLayout:
+            cols: 2
             size_hint: (1, 0.3)
+            Label:
+                text: 'Playlist'
+                font_size: 20
+                size_hint: (1, 0.3)
+            BoxLayout:
+                orientation: 'horizontal'
+                BoxLayout:
+                    orientation: 'horizontal'
+                    Label:
+                        text: 'Shuffle'
+                    CheckBox:
+                        id: shuffle
+                        active: False
+                BoxLayout:
+                    orientation: 'horizontal'
+                    Label:
+                        text: 'Repeat'
+                    CheckBox:
+                        id: repeat
+                        active: False
+                Button:
+                    text: 'Add Song'
+                    on_press: root.add()
         GridLayout:
             id: Scroll_text_label
             cols: 1
@@ -97,6 +121,7 @@
     song_name: ''
     song_time: ''
     song_path: ''
+    position: 0
     caller: None
     Label:
         id: song_name
@@ -107,7 +132,12 @@
         text: ''
         font_size: 20
     GridLayout:
-        cols: 2
+        cols: 3
+        CheckBox:
+            id: song_current_playing
+            active: False
+            disabled: True # will be enabled, once I figure out how to get the checkbox to work
+            #on_touch_down: root.include_song()
         Button:
             text: 'Play'
             on_press: root.play()
