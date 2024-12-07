@@ -5,8 +5,7 @@
 <p>App has a rewind, forward, next, previous buttons, and a scroll menu where the songs are listed.</p>
 
 ## Screenshots
-![image](https://github.com/user-attachments/assets/5d69b50c-2d47-4498-8f41-62fad39a81de)
-
+![image](https://github.com/user-attachments/assets/d1568a53-b277-4328-9535-390e6e8e5ddc)
 
 ## To do
 [X] file and directory loading <br>
