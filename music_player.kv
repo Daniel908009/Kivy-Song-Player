@@ -1,6 +1,7 @@
 <MainGrid>
     cols: 1
     playList: []
+    ignoreList: []
     now_playing: ''
     current_song: 0
     music_entire_time: 0
@@ -10,24 +11,35 @@
         font_size: 30
         size_hint: (1, 0.3)
     GridLayout:
-        cols: 1
-        Label:
-            text: 'Now Playing'
-            font_size: 20
+        cols: 2
         GridLayout:
-            cols: 2
+            cols: 1
+            size_hint: (0.9, 1)
             Label:
-                id: now_playing
-                text: 'Select a song to play'
-                font_size: 15
-            Label:
-                id: time_playing
-                text: ''
+                text: 'Now Playing'
+                font_size: 20
+            GridLayout:
+                cols: 2
+                Label:
+                    id: now_playing
+                    text: 'Select a song to play'
+                    font_size: 15
+                Label:
+                    id: time_playing
+                    text: ''
+            Slider:
+                id: time_slider
+                min: 0
+                value: 0
+                disabled: True
         Slider:
-            id: time_slider
+            orientation: 'vertical'
+            id: volume_slider
             min: 0
-            value: 0
-            disabled: True
+            max: 1
+            value: 0.5
+            size_hint: (0.1, 1)
+            #on_value: root.volume() # will have to be done later
     GridLayout:
         cols: 6
         size_hint: (1, 0.3)
@@ -135,9 +147,8 @@
         cols: 3
         CheckBox:
             id: song_current_playing
-            active: False
-            disabled: True # will be enabled, once I figure out how to get the checkbox to work
-            #on_touch_down: root.include_song()
+            active: True
+            on_press: root.include_song()
         Button:
             text: 'Play'
             on_press: root.play()

@@ -31,20 +31,15 @@ class Song_Widget(GridLayout):
         self.position = len(caller.ids.playlist.children)
         self.ids.song_current_playing.active = True
     
-    # this is for the include checkbutton, this will have to be finished later, once I figure out how to do it properly
+    # this is for the include checkbutton
     def include_song(self):
-        print(self.caller.playList)
-        print(self.song_path)
-        if self.ids.song_current_playing.active == True:
-            if self.song_path in self.caller.playList:
-                print("removing")
-                #self.ids.song_current_playing.active = False
-                self.caller.playList.remove(self.song_path)
+        #print("checked check")
+        #print(self.song_path)
+        #print(self.caller.playList)
+        if self.song_path not in self.caller.ignoreList:
+            self.caller.ignoreList.append(self.song_path)
         else:
-            if self.song_path not in self.caller.playList:
-                print("adding")
-                #self.ids.song_current_playing.active = True
-                self.caller.playList.append(self.song_path)
+            self.caller.ignoreList.remove(self.song_path)
     
     def remove(self):
         self.parent.remove_widget(self)
@@ -106,6 +101,13 @@ class MainGrid(GridLayout):
     def play_stop(self):
         if self.playList != []:
             if self.ids.play_stop.text == "Play" or self.ids.play_stop.text == "Resume":
+                while self.playList[self.current_song] in self.ignoreList:
+                    self.current_song += 1
+                    if self.current_song == len(self.playList) and self.repeat_check():
+                        self.current_song = 0
+                    elif self.current_song == len(self.playList):
+                        self.playlist_ended()
+                        return
                 self.ids.play_stop.text = "Stop"
                 self.ids.play_stop.background_color = [1,0,0,1]
                 self.ids.now_playing.text = self.playList[self.current_song].split("/")[-1]
@@ -127,19 +129,34 @@ class MainGrid(GridLayout):
     def update_time(self, dt):
         self.stopped_time += dt
         self.ids.time_slider.value = self.stopped_time
-        #print(self.stopped_time)
         if self.stopped_time >= self.music_entire_time:
-            #print("changing song")
             if self.shuffle_check() and len(self.playList) > 1:
                 rand = random.randint(0, len(self.playList) - 1)
-                while self.current_song == rand:
-                    rand = random.randint(0, len(self.playList) - 1)
                 self.current_song = rand
-                #print("shuffled")
             else:
+                #print(self.playList[self.current_song])
+                #print(self.ignoreList)
                 self.current_song += 1
+                if self.current_song < len(self.playList): # all of these are a bit confusing, because its literally everywhere, but they are all here to prevent the playList to go out of range
+                    #if self.playList[self.current_song] in self.ignoreList:
+                    #    print("it is in the ignore list")
+                    while self.playList[self.current_song] in self.ignoreList:
+                        #print("this is happening")
+                        self.current_song += 1
+                        if self.current_song == len(self.playList) and self.repeat_check():
+                            self.current_song = 0
+                            #print("is the problem here?") # The problem was in fact not here, but 6 lines down
+                        elif self.current_song == len(self.playList):
+                            self.playlist_ended()
+                            return
+                    #print("this is not happening")
             if self.current_song == len(self.playList) and self.repeat_check():
                 self.current_song = 0
+                while self.playList[self.current_song] in self.ignoreList:
+                    self.current_song += 1
+                    if self.current_song == len(self.playList):
+                        self.playlist_ended()
+                        return
             self.stopped_time = 0
             pygame.mixer.music.stop()
             if self.current_song < len(self.playList):
@@ -192,11 +209,16 @@ class MainGrid(GridLayout):
                 self.current_song = len(self.playList) - 1
             else:
                 self.current_song -= 1
+                while self.playList[self.current_song] in self.ignoreList:
+                    self.current_song -= 1
+                    if self.current_song < 0:
+                        self.current_song = len(self.playList) - 1
             pygame.mixer.music.stop()
             pygame.mixer.music.load(self.playList[self.current_song])
             pygame.mixer.music.play()
             self.stopped_time = 0
-            Clock.schedule_interval(self.update_time, 1)
+            if Clock.get_time() == 0:
+                Clock.schedule_interval(self.update_time, 1)
             self.ids.play_stop.text = "Stop"
             self.ids.play_stop.background_color = [1,0,0,1]
             self.ids.now_playing.text = self.playList[self.current_song].split("/")[-1]
@@ -204,6 +226,14 @@ class MainGrid(GridLayout):
         
     def next(self):
         if self.playList != []:
+            self.current_song += 1
+            while self.playList[self.current_song] in self.ignoreList:
+                self.current_song += 1
+                if self.current_song == len(self.playList) and self.repeat_check():
+                    self.current_song = 0
+                elif self.current_song == len(self.playList):
+                    self.playlist_ended()
+                    return
             if self.current_song == len(self.playList) - 1 and self.repeat_check():
                 self.current_song = 0
             else:
@@ -214,14 +244,18 @@ class MainGrid(GridLayout):
             else:
                 pygame.mixer.music.load(self.playList[self.current_song])
                 pygame.mixer.music.play()
-                self.stopped_time = 0
                 if Clock.get_time() == 0: # this is to prevent the update_time function from being called twice a second
                     Clock.schedule_interval(self.update_time, 1)
+                self.stopped_time = 0
                 self.ids.play_stop.text = "Stop"
                 self.ids.play_stop.background_color = [1,0,0,1]
                 self.ids.now_playing.text = self.playList[self.current_song].split("/")[-1]
                 self.time_playing_text()
                 self.ids.time_slider.value = 0
+                if self.playList[self.current_song].endswith(".mp3"):
+                    self.music_entire_time = MP3(self.playList[self.current_song]).info.length
+                else:
+                    self.music_entire_time = WAVE(self.playList[self.current_song]).info.length
                 self.ids.time_slider.max = self.music_entire_time
     
     def rewind(self):
@@ -235,11 +269,9 @@ class MainGrid(GridLayout):
             self.stopped_time += 10
 
     def shuffle_check(self):
-        #print("shuffle")
         return self.ids.shuffle.active
 
     def repeat_check(self):
-        #print("repeat")
         return self.ids.repeat.active
 
 class Music_playerApp(App):
