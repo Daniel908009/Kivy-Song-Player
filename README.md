@@ -11,8 +11,8 @@
 [X] file and directory loading <br>
 [X] menu with rewind, forward, next, previous, and stop buttons<br>
 [X] scroll menu with all the songs listed<br>
-[X] song progress bar
-[] volume bar
+[X] song progress bar <br>
+[] volume bar <br>
 [] better UI (more colours)<br>
 [] changing how the program finds a song in the playList, because currently you can cause an error by deleting some songs and then pushing the play button directly from the list of songs.
 [] cleaner code (there is currently a lot of code that repeats everywhere, so I will need to add functions to clear it out)<br>
