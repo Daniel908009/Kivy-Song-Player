@@ -1,11 +1,13 @@
+# this is the main grid for the music player window
 <MainGrid>
     cols: 1
-    playList: []
-    ignoreList: []
-    now_playing: ''
-    current_song: 0
-    music_entire_time: 0
-    stopped_time: 0
+    playList: [] # this is the entire playlist of songs
+    ignoreList: [] # this is used to decide if the song should be played or not, it depends on the checkbuton in the song widget
+    now_playing: '' # used to keep track of the current song playing
+    current_song: 0 # used to keep track of the current song index inside the playlist
+    music_entire_time: 0 # used to keep track of the total time of the song, used in the slider
+    stopped_time: 0 # this is used used in case the song is resumed, so it loads at the correct time
+    song_volume: 0.5 # this is used for changing the volume of the songs, is changed by the volume slider
     Label:
         text: 'Music Player'
         font_size: 30
@@ -39,7 +41,7 @@
             max: 1
             value: 0.5
             size_hint: (0.1, 1)
-            #on_value: root.volume() # will have to be done later
+            on_value: root.volume()
     GridLayout:
         cols: 6
         size_hint: (1, 0.3)
@@ -103,6 +105,7 @@
                 size_hint_y: None
                 height: 0
 
+# this is the popup for adding a song or entire directory to the playlist
 <AddPopup>
     title: 'Add Song'
     size_hint: 0.75, 0.75
@@ -126,6 +129,7 @@
                 text: 'Add'
                 on_press: root.add_song()
 
+# this is the widget for the song used in the scroll view
 <Song_Widget>
     size_hint_y: None
     height: 50

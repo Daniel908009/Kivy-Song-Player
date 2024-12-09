@@ -10,11 +10,13 @@ import random
 # either mutagen doesnt work here or I am doing something wrong, anyway pygame does the job fine
 import pygame
 pygame.init()
+
 import os
-current_path = os.path.dirname(os.path.realpath(__file__))
+current_path = os.path.dirname(os.path.realpath(__file__)) # this is used so that the filechooser popup opens in the current directory
 
 
 class Song_Widget(GridLayout):
+    # this is used to pass the info from the popup to the song widget
     def pass_info(self, name, caller):
         self.ids.song_name.text = name.split("/")[-1]
         if name.endswith(".mp3"):
@@ -31,16 +33,14 @@ class Song_Widget(GridLayout):
         self.position = len(caller.ids.playlist.children)
         self.ids.song_current_playing.active = True
     
-    # this is for the include checkbutton
+    # this is for the include checkbutton inside the song widget (this decides if the song should be played or not when called by some other function)
     def include_song(self):
-        #print("checked check")
-        #print(self.song_path)
-        #print(self.caller.playList)
         if self.song_path not in self.caller.ignoreList:
             self.caller.ignoreList.append(self.song_path)
         else:
             self.caller.ignoreList.remove(self.song_path)
     
+    # this is the logic for the remove button inside the song widget
     def remove(self):
         self.parent.remove_widget(self)
         self.caller.ids.playlist.height -= 50
@@ -56,9 +56,11 @@ class Song_Widget(GridLayout):
         if self.song_path in self.caller.playList:
             self.caller.playList.remove(self.song_path)
 
+    # this is used to play the song, it is called via the play button inside the song widget
     def play(self):
         self.caller.play(self.song_path, self.position)
 
+# this is a popup for adding song files or directories to the playlist
 class AddPopup(Popup):
     def pass_info(self, caller):
         self.ids.filechooser.path = current_path
@@ -91,13 +93,16 @@ class AddPopup(Popup):
                 self.caller.ids.Scroll_text_label.add_widget(Label(text="Controls", color=[0,0,1,1]))
         self.dismiss()
 
+# this is the main app grid
 class MainGrid(GridLayout):
 
+    # this is used to open the filechooser popup
     def add(self):
         popup = AddPopup()
-        popup.pass_info(self)
+        popup.pass_info(self) # no clue if this the most efficient way, however it works
         popup.open()
 
+    # this is used to play and stop music, it is called via the main play/stop button in the middle of the screen
     def play_stop(self):
         if self.playList != []:
             if self.ids.play_stop.text == "Play" or self.ids.play_stop.text == "Resume":
@@ -126,6 +131,8 @@ class MainGrid(GridLayout):
                 Clock.unschedule(self.update_time)
                 pygame.mixer.music.pause()
 
+    # this is used to update the time slider and time info labels, and also changes a song if it has reached the end
+    # it is called once a second
     def update_time(self, dt):
         self.stopped_time += dt
         self.ids.time_slider.value = self.stopped_time
@@ -134,22 +141,15 @@ class MainGrid(GridLayout):
                 rand = random.randint(0, len(self.playList) - 1)
                 self.current_song = rand
             else:
-                #print(self.playList[self.current_song])
-                #print(self.ignoreList)
                 self.current_song += 1
                 if self.current_song < len(self.playList): # all of these are a bit confusing, because its literally everywhere, but they are all here to prevent the playList to go out of range
-                    #if self.playList[self.current_song] in self.ignoreList:
-                    #    print("it is in the ignore list")
                     while self.playList[self.current_song] in self.ignoreList:
-                        #print("this is happening")
                         self.current_song += 1
                         if self.current_song == len(self.playList) and self.repeat_check():
                             self.current_song = 0
-                            #print("is the problem here?") # The problem was in fact not here, but 6 lines down
                         elif self.current_song == len(self.playList):
                             self.playlist_ended()
                             return
-                    #print("this is not happening")
             if self.current_song == len(self.playList) and self.repeat_check():
                 self.current_song = 0
                 while self.playList[self.current_song] in self.ignoreList:
@@ -169,6 +169,7 @@ class MainGrid(GridLayout):
             else:
                 self.playlist_ended()
     
+    # this is used for showing the duration of the song on the info labels
     def time_playing_text(self):
         if self.playList[self.current_song].endswith(".mp3"):
             minutes, seconds = divmod(round(MP3(self.playList[self.current_song]).info.length), 60)
@@ -179,6 +180,7 @@ class MainGrid(GridLayout):
             self.ids.time_playing.text = str(minutes) + "m " + str(seconds) + "s"
             self.music_entire_time = WAVE(self.playList[self.current_song]).info.length
 
+    # this is used to play a specific song, it is called via the play button inside the .kv file (inside the song widget)
     def play(self, path, position):
         pygame.mixer.music.stop()
         pygame.mixer.music.load(path)
@@ -194,6 +196,7 @@ class MainGrid(GridLayout):
         self.ids.time_slider.value = 0
         self.ids.time_slider.max = self.music_entire_time
 
+    # this is used to stopping the playlist if it has reached the end, and the repeat is not on
     def playlist_ended(self):
         self.current_song = 0
         self.stopped_time = 0
@@ -203,6 +206,7 @@ class MainGrid(GridLayout):
         self.ids.now_playing.text = "You have reached the end of the playlist"
         self.ids.time_playing.text = "Select a song to play"
 
+    # this is used to play the previous song (before the current one), it is called via a button inside the .kv file
     def previous(self):
         if self.playList != []:
             if self.current_song == 0:
@@ -224,6 +228,8 @@ class MainGrid(GridLayout):
             self.ids.now_playing.text = self.playList[self.current_song].split("/")[-1]
             self.time_playing_text()
         
+    # this is used to skip to the next song, it is called via a button inside the .kv file
+    # looks complicated, but it has to check all the different conditions and settings
     def next(self):
         if self.playList != []:
             self.current_song += 1
@@ -258,25 +264,36 @@ class MainGrid(GridLayout):
                     self.music_entire_time = WAVE(self.playList[self.current_song]).info.length
                 self.ids.time_slider.max = self.music_entire_time
     
+    # this is used to rewind the song by 10 seconds
     def rewind(self):
         if self.ids.now_playing.text != "Select a song to play":
             pygame.mixer.music.set_pos(self.stopped_time - 10)
             self.stopped_time = 0
     
+    # this is used to move the song forward by 10 seconds
     def forward(self):
         if self.ids.now_playing.text != "Select a song to play":
             pygame.mixer.music.set_pos(self.stopped_time + 10)
             self.stopped_time += 10
 
+    # this is used for shuffling the playlist, if this returns true, the next song will be random
     def shuffle_check(self):
         return self.ids.shuffle.active
 
+    # this is used in case the playlist reaches the end to check if it should repeat, if this returns true, the playlist will repeat
     def repeat_check(self):
         return self.ids.repeat.active
+    
+    # this is used to change the volume of the music, it is called via the volume slider
+    def volume(self):
+        self.song_volume = self.ids.volume_slider.value
+        pygame.mixer.music.set_volume(self.song_volume)
 
+# the main app class
 class Music_playerApp(App):
     def build(self):
         return MainGrid()
-    
+
+# opening the app
 if __name__ == "__main__":
     Music_playerApp().run()
