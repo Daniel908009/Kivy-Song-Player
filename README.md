@@ -40,5 +40,5 @@ Now open a console and enter the folowing code: pip install -r /path/to/requirem
 *Replace the /path/to/requirements.txt with the actual path. <br>
 Enjoy! <br>
 <h2>Using Pypi</h2>
-simply open your command prompt and enter this command: pip install kivy_music_player_package <br>
-then you can run it with this command:  python3 -m kivy_music_player_package.main
+simply open your command prompt and enter this command: pip install kivy-music-player-package <br>
+then you can run it with this command: kivy_music_player_package
